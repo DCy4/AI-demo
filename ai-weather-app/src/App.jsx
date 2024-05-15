@@ -1,35 +1,87 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import "./App.css";
+import useApiRequests from "./components/useApiRequests";
+import WeatherForm from "./components/WeatherForm";
+import WeatherCard from "./components/WeatherCard";
+import Description from "./components/Description";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [prompt, setPrompt] = useState("");
+  const [units, setUnits] = useState("metric");
+  const [weatherDataLoading, setWeatherDataLoading] = useState(false);
+  const [weatherDescriptLoading, setWeatherDescriptLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  // Custom hook to handle API requests. Fires when prompt changes.
+  const { error, promptData, locationData, weatherData, weatherDescription } =
+    useApiRequests(prompt);
+
+  // Set error message if error is returned from API request.
+  useEffect(() => {
+    if (error) {
+      setErrorMsg(error);
+      setWeatherDataLoading(false);
+    }
+  }, [error]);
+
+  // Set weatherDataLoading to false when weatherData is returned from API request.
+  useEffect(() => {
+    if (weatherData) {
+      setWeatherDataLoading(false);
+    }
+  }, [weatherData]);
+
+  useEffect(() => {
+    if (weatherDescription) {
+      setWeatherDescriptLoading(false);
+    }
+  }, [weatherDescription]);
+
+  useEffect(() => {
+    if (promptData && promptData.units) {
+      setUnits(promptData.units);
+    }
+  }, [promptData]);
+
+  // Handle form submission. Set prompt to user input.
+  const handleSubmit = (newPrompt) => {
+    setErrorMsg("");
+    setWeatherDataLoading(true);
+    setWeatherDescriptLoading(true);
+    setPrompt(newPrompt);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="container">
+      <header className="header">
+        <h1 className="page-title">Current Weather</h1>
+        <WeatherForm onSubmit={handleSubmit} />
+        {error && <p className="error">{errorMsg.message}</p>}
+        {weatherDescription ? (
+          <Description
+            isLoading={weatherDescriptLoading}
+            weatherDescription={weatherDescription}
+          />
+        ) : (
+          <Description isLoading={weatherDescriptLoading} />
+        )}
+      </header>
+      <main className="main-content">
+        {weatherData.name && !errorMsg ? (
+          <WeatherCard
+            isLoading={weatherDataLoading}
+            data={weatherData}
+            units={units}
+            country={promptData.country}
+            USstate={locationData[0].state}
+            setUnits={setUnits}
+          />
+        ) : (
+          <WeatherCard isLoading={weatherDataLoading} setUnits={setUnits} />
+        )}
+      </main>
+    </div>
+  );
 }
 
-export default App
+export default App;
