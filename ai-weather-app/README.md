@@ -1,8 +1,31 @@
-# React + Vite
+# AI-demo
+Integrating OpenAI API into a JavaScript-based web app
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Relies on OpenWeather map API to get weather information to that location
 
-Currently, two official plugins are available:
+got to https://home.openweathermap.org/api_keys to access your API key
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+# Get Started
+configure codespace devcontainer to use portforwarding for vite
+
+`
+"portsAttributes" : {
+   "5173": {
+     "label": "Vite port" ,
+     "onAutoForward": "openPreview"
+  }
+},
+  "forwardPorts": [5173]
+  `
+
+install vite
+
+`npm install vite@latest`
+
+-javascript + SWC
+
+under package.json >> scripts change "vite" to "vite --host" to specificcally use host env provides
+
+Run env
+
+`npm run dev`
